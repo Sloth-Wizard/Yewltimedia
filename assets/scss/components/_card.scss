@@ -1,0 +1,306 @@
+.card {
+    position: relative;
+    max-width: 33.3333333%;
+    color: $white-soft;
+    float: left;
+    opacity: 0;
+    will-change: auto;
+    transition: opacity .25s $in-out-circ;
+
+    &:before {
+        position: absolute;
+        content: '';
+        width: calc(100% - #{space(x4)});
+        height: calc(100% - #{space(x4)});
+        background: $violet-soft;
+        border-radius: 50%;
+        left: 50%;
+        bottom: -#{space(x1)};
+        transform: translateX(-50%);
+    }
+
+    &--zone {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: auto;
+        height: auto;
+        max-height: calc(100% - #{space(x4)});
+        max-width: $layout-main--max-width;
+        background: $bg-gradient;
+        border-radius: 20px;
+        overflow: hidden;
+
+        &--desc {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 0 space(x4) space(x4) 0;
+            opacity: 0;
+            background: transparent;
+            pointer-events: none;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            overflow: scroll;
+            z-index: 2;
+            will-change: opacity, pointer-events;
+            transition: all .5s $in-out-circ;
+
+            &.tapped {
+                opacity: 1;
+                pointer-events: all;
+
+                .card__desc {
+                    .content {
+                        > p {
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &--wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: space(x1);
+    }
+
+    &--title {
+        padding: space(x2) 0;
+        color: $white-soft;
+        text-align: center;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    // Multimedia center zone
+    &--mm {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 33.3333333%;
+
+        &:before {
+            background: blueviolet;
+        }
+    }
+
+    &__img {
+        position: relative;
+        max-width: 100%;
+        border-radius: 50%;
+        bottom: -.6rem;
+        mask-image: radial-gradient(white, black);
+        -webkit-mask-image: -webkit-radial-gradient(white, black);
+        overflow: hidden;
+
+        @media screen and (min-width: 480px) {
+            bottom: -.55rem;
+        }
+
+        > img {
+            position: relative;
+            max-width: 200%;
+            vertical-align: middle;
+            bottom: -15px;
+            transform: translateY(#{space(x2)});
+            will-change: auto;
+            transition: transform .5s $in-out-quad, opacity .25s $in-out-circ;
+        }
+        
+        &.tapped {
+            > img {
+                transform: translateY(0);
+            }
+        }
+        &.sprite {
+            > img {
+                left: -100%;
+            }
+        }
+    }
+
+    &__text {
+        &--mm {
+            position: relative;
+            margin-bottom: -#{space(x5)};
+
+            > p {
+                margin: 0;
+                font-family: 'barryone', serif;
+                font-size: 2.5em;
+                line-height: 1em;
+
+                @media screen and (min-width: 480px) {
+                    font-size: 3.5em;
+                }
+            }
+        }
+
+        > p {
+            display: block;
+            text-align: center;
+        }
+    }
+
+    &__actions {
+        position: absolute;
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        height: 100%;
+        bottom: -#{space(x1)};
+        pointer-events: none;
+        
+        .more {
+            position: absolute;
+            padding: 4px;
+            width: 20px;
+            height: 20px;
+            bottom: 0;
+            right: space(x1);
+            pointer-events: all;
+            cursor: pointer;
+            will-change: width, height, right;
+            transition: all .5s $in-out-circ;
+
+            @media screen and (min-width: 480px) {
+                width: 26px;
+                height: 26px;
+                bottom: space(x1);
+            }
+
+            &:before, &:after {
+                position: absolute;
+                content: '';
+                margin: 4px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                bottom: 0;
+                right: 0;
+                transition: all .5s $in-out-circ;
+
+                @media screen and (min-width: 480px) {
+                    width: 26px;
+                    height: 26px;
+                }
+            }
+
+            &:before {
+                background: linear-gradient(141deg, rgba(87,192,236,1) 0%, rgba(138,43,226,1) 70%);
+                z-index: 1;
+            }
+
+            &:after {
+                background: rgb(138,43,226);
+                opacity: 1;
+                z-index: 2;
+            }
+
+            .icon {
+                position: absolute;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 20px;
+                height: 20px;
+                top: 4px;
+                right: 4px;
+                z-index: 3;
+                
+                @media screen and (min-width: 480px) {
+                    width: 26px;
+                    height: 26px;
+                }
+
+                > span {
+                    position: absolute;
+                    display: inline-block;
+                    width: 10px;
+                    height: 2px;
+                    background: $white-soft;
+    
+                    &:first-child {
+                        transform: rotate(90deg);
+                        transform-origin: center;
+                    }
+                }
+            }
+
+            &.tapped {
+                width: 100%;
+                height: 100%;
+                right: 0;
+                
+                &:before, &:after {
+                    width: 2000px;
+                    height: 2000px;
+                    bottom: -1000px;
+                    right: -1000px;
+                }
+
+                &:after {
+                    opacity: 0;
+                }
+            }
+        }
+    }
+
+    &__desc {
+        padding: space(x4);
+        color: $white-soft;
+        cursor: pointer;
+
+        .inner {
+            display: block;
+            margin: -#{space(x2)} 0;
+            text-align: center;
+            
+            > img {
+                object-position: center center;
+                border-radius: 50%;
+            }
+        }
+
+        h2 {
+            font-weight: 700;
+        }
+
+        .content {
+            > p {
+                opacity: 0;
+                font-size: .8em;
+                font-weight: 400;
+                line-height: 1.353em;
+                letter-spacing: .04rem;
+                will-change: opacity;
+                transition: opacity .5s $in-out-circ;
+
+                @for $i from 0 through 8 {
+                    &:nth-child(#{$i + 1}) {
+                        transition-delay: #{$i * .05s + .15s};
+                    }
+                }
+            }
+
+            a {
+                color: $violet-soft;
+                font-weight: 500;
+            }
+        }
+    }
+}
+
+.loaded {
+    .card {
+        opacity: 1;
+    }
+}

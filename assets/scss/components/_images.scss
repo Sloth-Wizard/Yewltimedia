@@ -1,0 +1,9 @@
+.js-lazy {
+    opacity: 0;
+    will-change: opacity;
+    transition: opacity .15s $in-out-circ;
+
+    &.b-loaded {
+        opacity: 1;
+    }
+}

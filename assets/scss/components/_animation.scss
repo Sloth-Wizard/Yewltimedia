@@ -1,0 +1,13 @@
+@keyframes upNdwN {
+    0% {
+        transform: translateY(#{space('x2')});
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(#{space('x2')});
+    }
+}

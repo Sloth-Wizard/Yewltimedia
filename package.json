@@ -1,0 +1,29 @@
+{
+    "name": "meuhltimedia",
+    "version": "1.0.0",
+    "description": "Assets bundler",
+    "browserslist": "> 0.5%, last 2 versions, not dead",
+    "scripts": {
+        "dev-ts": "parcel assets/ts/*.ts --dist-dir ./public --public-url public/ --no-source-maps",
+        "prod-ts": "parcel build assets/ts/*.ts --dist-dir ./public --public-url public/ --no-source-maps",
+        "help": "parcel build --help"
+    },
+    "keywords": [],
+    "author": "Alexis Abeloos",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.19.6",
+        "@babel/preset-env": "^7.19.4",
+        "@parcel/transformer-sass": "^2.7.0",
+        "parcel": "^2.7.0",
+        "parcel-namer-rewrite": "^2.0.0-rc.3",
+        "querystring-es3": "^0.2.1",
+        "sass": "^1.55.0"
+    },
+    "dependencies": {
+        "babel-polyfill": "^6.26.0",
+        "gsap": "^3.11.3",
+        "invp-ts": "^1.0.1",
+        "regenerator-runtime": "^0.13.10"
+    }
+}
