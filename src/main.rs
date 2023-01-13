@@ -11,6 +11,11 @@ use components::card::CardComponent;
 fn App() -> Html {
     let header_text = "en 2023,".to_string();
     let footer_text = "Multimédia\u{00a0}!".to_string();
+    
+    // Build a list of cards components
+    let cards = create_cards().into_iter().map(|card| {
+        html! { <CardComponent ..card.clone()/> }
+    }).collect::<Html>();
 
     html! {
         <div class={classes!(String::from("container"))}>
@@ -19,11 +24,7 @@ fn App() -> Html {
                     <p>{header_text}</p>
                 </div>
                 <cards class={classes!(String::from("card--wrapper"))}>
-                    {
-                        create_cards().into_iter().map(|card| {
-                            html! { <CardComponent ..card.clone()/> }
-                        }).collect::<Html>()
-                    }
+                    {cards}
                 </cards>
                 <div class="card--title card__text--mm">
                     <p>{footer_text}</p>
