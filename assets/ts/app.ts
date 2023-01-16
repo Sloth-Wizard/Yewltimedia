@@ -37,7 +37,7 @@ export default new Promise<{
     if (WRAPPER)
         new m.cards().create(WRAPPER);
     */
-
+    /*
     // Load the tapped module on the first tap
     const TAPEVENT = btoa('mousedown');
     const TAPPABLEELEMENTS = document.querySelectorAll<HTMLElement>(`.js-tap:not([data-tevt="${TAPEVENT}"])`);
@@ -54,6 +54,7 @@ export default new Promise<{
             pmdl.origin.dispatchEvent(await OBSERVER.emit(atob(event), {cancelable: true}));
         });
     }
+    */
 
     window.__lazyload = new m.lazyload();
     window.__lazyload.load('.js-lazy:not(.b-loaded)');
