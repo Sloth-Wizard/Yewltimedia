@@ -1,3 +1,5 @@
+#[allow(non_upper_case_globals)] // To silence annoying warnings when using wasm static methods like document or body init's 
+
 mod components;
 mod data;
 mod models;
