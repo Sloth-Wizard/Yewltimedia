@@ -3,11 +3,13 @@
 mod components;
 mod data;
 mod models;
+mod tools;
 
 use yew::prelude::*;
 use yew::{classes, html};
 use data::cards_data::create_cards;
-use components::card::CardComponent;
+
+use crate::components::card::CardComponent;
 
 #[function_component]
 fn App() -> Html {
