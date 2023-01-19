@@ -1,6 +1,8 @@
 use gloo::timers::callback::Timeout;
 use wasm_bindgen::{prelude::*, JsCast};
-use web_sys::{HtmlElement, NodeList};
+use web_sys::{HtmlElement, NodeList, window, Event};
+
+use crate::tools::card_actions_bindings::*;
 
 pub fn sprite_animation(sprite: Option<HtmlElement>, ms: u32) -> bool {
     if let Some(sprite) = sprite {
@@ -23,51 +25,129 @@ pub fn sprite_animation(sprite: Option<HtmlElement>, ms: u32) -> bool {
     false
 }
 
-#[wasm_bindgen]
-pub fn open_card(button: &HtmlElement, active_card: HtmlElement, cards: NodeList, icon: HtmlElement, description_container: &HtmlElement) -> Result<(), JsValue> {
-    button.set_class_name(format!("{} tapped", button.class_name()).as_str());
-    match button.set_attribute("data-nxtcl", "<o_o<") {
-        Ok(_) => (),
-        Err(err) => return Err(err)
+pub struct CardElements {
+    pub button: HtmlElement,
+    pub icon: HtmlElement,
+    pub card: HtmlElement,
+    pub container: HtmlElement
+}
+pub enum OpenOrClose {
+    // cards, button, icon, card
+    Open(NodeList, CardElements),
+    // cards, button, icon, card
+    Close(NodeList, CardElements),
+    // console.error("Noob")
+    Error(&'static str)
+}
+pub fn show_more(button: Option<HtmlElement>, icon: Option<HtmlElement>, card: Option<HtmlElement>, desc_cont: Option<HtmlElement>) -> OpenOrClose {
+    let mut card_elements: Vec<HtmlElement> = Vec::new();
+
+    // Match our passed element, if any of the elements are missing, the function will end
+    match button { Some(button) => card_elements.push(button), None => return OpenOrClose::Error("Missing button") }
+    match icon { Some(icon) => card_elements.push(icon), None => return OpenOrClose::Error("Missing icon") }
+    match card { Some(card) => card_elements.push(card), None => return OpenOrClose::Error("Missing card") }
+    match desc_cont { Some(container) => card_elements.push(container), None => return OpenOrClose::Error("Missing description container") }
+
+    // No missing elements so now we map it to a struct
+    let card_mapping = CardElements {
+        button: card_elements[0].clone(),
+        icon: card_elements[1].clone(),
+        card: card_elements[2].clone(),
+        container: card_elements[3].clone()
     };
 
-    // Hide + signs of unfocused cards
-    for i in 0..cards.length() {
-        if let Some(card) = cards.get(i) {
-            if !active_card.is_same_node(Some(&card)) {
-                let el = card.dyn_into::<HtmlElement>()?;
-                el.style().set_property("z-index", "0")?;
+    // Gather all our cards
+    let cards: NodeList = document.query_selector_all(".card");
+    
+    match card_mapping.button.get_attribute("data-nxtcl") {
+        Some(nxtcl) => {
+            if nxtcl == ">o_o>" {
+                return OpenOrClose::Open(cards, card_mapping)
+            } else {
+                return OpenOrClose::Close(cards, card_mapping)
             }
+        },
+        None => {
+            return OpenOrClose::Open(cards, card_mapping)
         }
     }
-
-    icon.style().set_property("opacity", "0")?;
-
-    Ok(())
 }
 
-#[wasm_bindgen]
-pub fn close_card(button: &HtmlElement, active_card: HtmlElement, cards: NodeList, icon: HtmlElement, timeout: u32) -> Result<(), JsValue> {
-    button.set_class_name(button.class_name().replace(" tapped", "").as_str());
-    match button.set_attribute("data-nxtcl", ">o_o>") {
+pub fn open_card(cards: NodeList, card: CardElements) -> Result<HtmlElement, JsValue> {
+    card.button.set_class_name(format!("{} tapped", card.button.class_name()).as_str());
+    match card.button.set_attribute("data-nxtcl", "<o_o<") {
         Ok(_) => (),
         Err(err) => return Err(err)
     };
 
-    // Display + signs of unfocused cards
-    // We wait the main animation to finish before changing back ou z-index
-    Timeout::new(timeout, move || {
+    // Hide + sign of focused card and make sure other cards are z-index'd under our active card
+    toggle_cards_visibility(cards, card.card, card.icon, 0, String::from("0"));
+    
+    Ok(card.button)
+}
+
+pub fn close_card(cards: NodeList, card: CardElements, container: HtmlElement) -> Result<HtmlElement, JsValue> {
+    container.set_class_name(container.class_name().replace("tapped", "").as_str());
+
+    let button = card.button.clone();
+    Timeout::new(0_510, move || {
+        button.set_class_name(button.class_name().replace(" tapped", "").as_str());
+    
+        // Reset + sign visibility and z-index positions
+        toggle_cards_visibility(cards, card.card, card.icon, 0_510, String::from("auto"));
+    }).forget();
+
+    match card.button.set_attribute("data-nxtcl", ">o_o>") {
+        Ok(_) => (),
+        Err(err) => return Err(err)
+    };
+
+    Ok(card.button)
+}
+
+pub fn load_description(button: HtmlElement, container: HtmlElement, ms: u32) -> () {
+    match lazyload() {
+        Ok(ok) => {
+            if !ok {
+                error(JsValue::from_str("Could not create our custom event"))
+            }
+        },
+        Err(err) => error(err)
+    }
+
+    Timeout::new(ms, move || {
+        if button.class_name().contains("tapped") {
+            container.set_class_name(format!("{} tapped", container.class_name()).as_str())
+        }
+    }).forget();
+}
+
+fn toggle_cards_visibility(cards: NodeList, card: HtmlElement, icon: HtmlElement, ms: u32, z_index: String) -> () {
+    Timeout::new(ms, move || {
         for i in 0..cards.length() {
-            if let Some(card) = cards.get(i) {
-                if !active_card.is_same_node(Some(&card)) {
-                    let el = card.dyn_into::<HtmlElement>().unwrap();
-                    el.style().set_property("z-index", "auto").unwrap();
+            if let Some(node) = cards.get(i) {
+                if !card.is_same_node(Some(&node)) {
+                    let el = node.dyn_into::<HtmlElement>().unwrap();
+                    el.style().set_property("z-index", z_index.as_str()).unwrap()
                 }
             }
         }
 
-        icon.style().set_property("opacity", "1").unwrap();
+        icon.style().set_property("opacity", if z_index == "0" { "0" } else { "1" }).unwrap()
     }).forget();
+}
 
-    Ok(())
+// Send an event and trigger our lazyloading
+fn lazyload() -> Result<bool, JsValue> {
+    let window = window();
+    let lazyload_event: Result<Event, JsValue> = web_sys::Event::new("__lazyload");
+
+    if let Some(window) = window {
+        match lazyload_event {
+            Ok(event) => return window.dispatch_event(&event),
+            Err(err) => return Err(err)
+        }
+    }
+
+    Ok(false)
 }

@@ -28,5 +28,7 @@ features = [
   'RequestInit',
   'RequestMode',
   'Response',
+  'Event',
+  'EventTarget',
   'Window',
 ]

@@ -19,4 +19,8 @@ export default new Promise<{
 
     window.__lazyload = new m.lazyload();
     window.__lazyload.load('.js-lazy:not(.b-loaded)');
+
+    window.addEventListener('__lazyload', _ => {
+        window.__lazyload.load('.js-lazy:not(.b-loaded)');
+    });
 });

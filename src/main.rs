@@ -5,6 +5,7 @@ mod data;
 mod models;
 mod tools;
 
+use models::cards::*;
 use yew::prelude::*;
 use yew::{classes, html};
 use data::cards_data::create_cards;
@@ -15,10 +16,28 @@ use crate::components::card::CardComponent;
 fn App() -> Html {
     let header_text = "en 2023,".to_string();
     let footer_text = "Multimédia\u{00a0}!".to_string();
+    let description_container = use_node_ref();
     
     // Build a list of cards components
+    let mut index = -1;
     let cards = create_cards().into_iter().map(|card| {
-        html! { <CardComponent ..card.clone()/> }
+        index += 1;
+        let props = CardComponentProps { card, description_container: description_container.clone() };
+        html! {
+            <>
+                if index == 4 {
+                    <div class={classes!(String::from("card card--mm"))}>
+                        <div class={classes!(String::from("card__text card__text--mm"))}>
+                            <p>{ "Voici" }</p>
+                            <p>{ "l'équipe" }</p>
+                        </div>
+                    </div>
+                    <CardComponent ..props.clone()/>
+                } else {
+                    <CardComponent ..props.clone()/>
+                }
+            </>
+        }
     }).collect::<Html>();
 
     html! {
@@ -34,7 +53,7 @@ fn App() -> Html {
                     <p>{footer_text}</p>
                 </div>
             </div>
-            <div class="card--zone--desc _czd"></div>
+            <div ref={description_container} class="card--zone--desc _czd"></div>
         </div>
     }
 }
