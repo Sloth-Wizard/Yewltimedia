@@ -33,3 +33,13 @@ trunk serve
 
 You will maybe see a warning displayed in the console telling us to convert the `document` static to `DOCUMENT` but this does not work for `wasm_bindgen`.
 Keeping `document` in lowercase is important.
+
+## Modifications
+
+If you change the `Typescript`, run the following to build the needed scripts so that trunk can correctly copy your new code
+
+```sh
+npm run prod-ts
+```
+
+The `SCSS` is handeled by trunk directly
