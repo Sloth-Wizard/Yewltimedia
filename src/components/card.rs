@@ -52,7 +52,7 @@ impl Component for CardComponent {
                     OpenOrClose::Open(cards, card) => {
                         // Open the card then display the description
                         // Description should be show after the selected animation time
-                        match open_card(cards, card) {
+                        match open_card(cards, card, ANIM_MS) {
                             Ok(button) => {
                                 ctx.link().send_future(async {
                                     Msg::InjectDescription(button)
@@ -69,7 +69,7 @@ impl Component for CardComponent {
                         // Hide the description, then close the card
                         // Card should be closed after the selected animation time
                         if let Some(container) = ctx.props().description_container.clone().cast::<HtmlElement>() {
-                            match close_card(cards, card, container) {
+                            match close_card(cards, card, container, ANIM_MS) {
                                 Ok(button) => {
                                     log(&button);
                                     return true
@@ -82,6 +82,7 @@ impl Component for CardComponent {
                         }
                         false
                     },
+                    OpenOrClose::IsPlaying => { true },
                     OpenOrClose::Error(err) => {
                         log_err(err);
                         false

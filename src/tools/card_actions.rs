@@ -36,6 +36,8 @@ pub enum OpenOrClose {
     Open(NodeList, CardElements),
     // cards, button, icon, card
     Close(NodeList, CardElements),
+    // Card is still playing the animation so do nothing
+    IsPlaying,
     // console.error("Noob")
     Error(&'static str)
 }
@@ -47,6 +49,10 @@ pub fn show_more(button: Option<HtmlElement>, icon: Option<HtmlElement>, card: O
     match icon { Some(icon) => card_elements.push(icon), None => return OpenOrClose::Error("Missing icon") }
     match card { Some(card) => card_elements.push(card), None => return OpenOrClose::Error("Missing card") }
     match desc_cont { Some(container) => card_elements.push(container), None => return OpenOrClose::Error("Missing description container") }
+
+    if card_elements[0].class_name().contains("playing") {
+        return OpenOrClose::IsPlaying;
+    }
 
     // No missing elements so now we map it to a struct
     let card_mapping = CardElements {
@@ -73,8 +79,8 @@ pub fn show_more(button: Option<HtmlElement>, icon: Option<HtmlElement>, card: O
     }
 }
 
-pub fn open_card(cards: NodeList, card: CardElements) -> Result<HtmlElement, JsValue> {
-    card.button.set_class_name(format!("{} tapped", card.button.class_name()).as_str());
+pub fn open_card(cards: NodeList, card: CardElements, ms: u32) -> Result<HtmlElement, JsValue> {
+    card.button.set_class_name(format!("{} tapped playing", card.button.class_name()).as_str());
     match card.button.set_attribute("data-nxtcl", "<o_o<") {
         Ok(_) => (),
         Err(err) => return Err(err)
@@ -82,19 +88,31 @@ pub fn open_card(cards: NodeList, card: CardElements) -> Result<HtmlElement, JsV
 
     // Hide + sign of focused card and make sure other cards are z-index'd under our active card
     toggle_cards_visibility(cards, card.card, card.icon, 0, String::from("0"));
+
+    // Remove playing class when animation is done
+    let button = card.button.clone();
+    Timeout::new(ms*2, move || {
+        button.set_class_name(button.class_name().replace(" playing", "").as_str());
+    }).forget();
     
     Ok(card.button)
 }
 
-pub fn close_card(cards: NodeList, card: CardElements, container: HtmlElement) -> Result<HtmlElement, JsValue> {
-    container.set_class_name(container.class_name().replace("tapped", "").as_str());
+pub fn close_card(cards: NodeList, card: CardElements, container: HtmlElement, ms: u32) -> Result<HtmlElement, JsValue> {
+    card.button.set_class_name(format!("{} playing", card.button.class_name()).as_str());
+    container.set_class_name(container.class_name().replace(" tapped", "").as_str());
 
     let button = card.button.clone();
-    Timeout::new(0_510, move || {
+    Timeout::new(ms, move || {
         button.set_class_name(button.class_name().replace(" tapped", "").as_str());
     
         // Reset + sign visibility and z-index positions
-        toggle_cards_visibility(cards, card.card, card.icon, 0_510, String::from("auto"));
+        toggle_cards_visibility(cards, card.card, card.icon, ms, String::from("auto"));
+
+        // Remove playing class when animation is done
+        Timeout::new(ms, move || {
+            button.set_class_name(button.class_name().replace(" playing", "").as_str());
+        }).forget();
     }).forget();
 
     match card.button.set_attribute("data-nxtcl", ">o_o>") {
