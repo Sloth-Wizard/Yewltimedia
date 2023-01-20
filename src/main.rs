@@ -6,11 +6,13 @@ mod models;
 mod tools;
 
 use models::cards::*;
+use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew::{classes, html};
 use data::cards_data::create_cards;
 
 use crate::components::card::CardComponent;
+use crate::tools::card_actions_bindings::*;
 
 #[function_component]
 fn App() -> Html {
@@ -40,6 +42,32 @@ fn App() -> Html {
         }
     }).collect::<Html>();
 
+    let onclick = {
+        let description_container = description_container.clone();
+        move |_| {
+            let container = description_container.cast::<HtmlElement>();
+            if let Some(_) = container {
+                let active_card = HTMLDocument::query_selector(&document, ".more.tapped");
+                if let Some(card) = active_card {
+                    let event = Event::new("mousedown");
+                    match event {
+                        Ok(event) => match card.dispatch_event(&event) {
+                            Ok(ok) => ok,
+                            Err(err) => {
+                                error(err.clone());
+                                false
+                            }
+                        },
+                        Err(err) => {
+                            error(err.clone());
+                            false
+                        }
+                    };
+                }
+            };
+        }
+    };
+
     html! {
         <div class={classes!(String::from("container"))}>
             <div class={classes!(String::from("card--zone"))}>
@@ -53,7 +81,7 @@ fn App() -> Html {
                     <p>{footer_text}</p>
                 </div>
             </div>
-            <div ref={description_container} class="card--zone--desc _czd"></div>
+            <div ref={description_container} {onclick} class="card--zone--desc _czd"></div>
         </div>
     }
 }

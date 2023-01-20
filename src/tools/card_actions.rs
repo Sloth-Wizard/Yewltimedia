@@ -105,6 +105,11 @@ pub fn close_card(cards: NodeList, card: CardElements, container: HtmlElement) -
     Ok(card.button)
 }
 
+#[derive(PartialEq)]
+struct DescriptionElements {
+    button: HtmlElement,
+    container: HtmlElement
+}
 pub fn load_description(button: HtmlElement, container: HtmlElement, ms: u32) -> () {
     match lazyload() {
         Ok(ok) => {
@@ -140,7 +145,7 @@ fn toggle_cards_visibility(cards: NodeList, card: HtmlElement, icon: HtmlElement
 // Send an event and trigger our lazyloading
 fn lazyload() -> Result<bool, JsValue> {
     let window = window();
-    let lazyload_event: Result<Event, JsValue> = web_sys::Event::new("__lazyload");
+    let lazyload_event: Result<Event, JsValue> = Event::new("__lazyload");
 
     if let Some(window) = window {
         match lazyload_event {

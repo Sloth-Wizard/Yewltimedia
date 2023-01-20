@@ -49,6 +49,7 @@
 
             &.tapped {
                 opacity: 1;
+                pointer-events: all;
 
                 .card__desc {
                     .content {
