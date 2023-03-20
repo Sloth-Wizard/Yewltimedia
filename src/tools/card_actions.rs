@@ -63,8 +63,7 @@ pub fn show_more(button: Option<HtmlElement>, icon: Option<HtmlElement>, card: O
     };
 
     // Gather all our cards
-    let cards: NodeList = document.query_selector_all(".card");
-    
+    let cards: NodeList = HtmlDocument::query_selector_all(&document, ".card");
     match card_mapping.button.get_attribute("data-nxtcl") {
         Some(nxtcl) => {
             if nxtcl == ">o_o>" {

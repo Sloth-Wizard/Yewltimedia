@@ -47,7 +47,7 @@ fn App() -> Html {
         move |_| {
             let container = description_container.cast::<HtmlElement>();
             if let Some(_) = container {
-                let active_card = HTMLDocument::query_selector(&document, ".more.tapped");
+                let active_card = HtmlDocument::query_selector(&document, ".more.tapped");
                 if let Some(card) = active_card {
                     let event = Event::new("mousedown");
                     match event {
