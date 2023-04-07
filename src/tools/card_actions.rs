@@ -1,9 +1,19 @@
+//! This file contains all callable actions linked to the `Card Component`
+//! 
+//! Ranging from simple class additions to custom events sending
+
 use gloo::timers::callback::Timeout;
 use wasm_bindgen::{prelude::*, JsCast};
 use web_sys::{HtmlElement, NodeList, window, Event};
 
 use crate::tools::card_actions_bindings::*;
 
+/// Add a class to the 'tapped' card to play the little sprite animation
+/// 
+/// * `sprite` - The image to be animated with classes
+/// * `ms` - The default animation duration in `u32`
+/// 
+/// Return a boolean to know if the animation was played successfully
 pub fn sprite_animation(sprite: Option<HtmlElement>, ms: u32) -> bool {
     if let Some(sprite) = sprite {
         if !sprite.class_name().contains("sprite") {
@@ -26,21 +36,35 @@ pub fn sprite_animation(sprite: Option<HtmlElement>, ms: u32) -> bool {
 }
 
 pub struct CardElements {
+    /// The `Card Component` button
     pub button: HtmlElement,
+    /// The `Card Component` icon
     pub icon: HtmlElement,
+    /// The `Card Component`
     pub card: HtmlElement,
+    /// The `Card Component` container that will receive it's description
     pub container: HtmlElement
 }
 pub enum OpenOrClose {
-    // cards, button, icon, card
+    /// Cards, button, icon, card
     Open(NodeList, CardElements),
-    // cards, button, icon, card
+    /// Cards, button, icon, card
     Close(NodeList, CardElements),
-    // Card is still playing the animation so do nothing
+    /// Card is still playing the animation so do nothing
     IsPlaying,
-    // console.error("Noob")
+    /// console.error("Noob")
     Error(&'static str)
 }
+/// Prepares all the necessary elements that can open or close the `Card Component` data
+/// 
+/// Checks if all the needed elements are available before showing more and checks the animation state
+/// 
+/// * `button` - The button of the `Card Component`
+/// * `icon` - The icon of the `Card Component`
+/// * `card` - The `Card Component`
+/// * `desc_cont` - The container that will receive the `Card Component` description
+/// 
+/// Returns an `OpenOrClose` enum used in the `Card Component` to trigger the needed Component `Msg`
 pub fn show_more(button: Option<HtmlElement>, icon: Option<HtmlElement>, card: Option<HtmlElement>, desc_cont: Option<HtmlElement>) -> OpenOrClose {
     let mut card_elements: Vec<HtmlElement> = Vec::new();
 
@@ -78,6 +102,17 @@ pub fn show_more(button: Option<HtmlElement>, icon: Option<HtmlElement>, card: O
     }
 }
 
+/// Changes the styles of the `Card Component` that is being open
+/// 
+/// Waits for the animation to be done playing before removing the class
+/// 
+/// The animation takes `ms*2` time to play
+/// 
+/// * `cards` - A `NodeList` of `Card Component` to hide them under the oppened one
+/// * `card` - The `Card Component` to be opened
+/// * `ms` - The default animation duration in `u32`
+/// 
+/// Returns the `Card Component` button or a `JsValue` error
 pub fn open_card(cards: NodeList, card: CardElements, ms: u32) -> Result<HtmlElement, JsValue> {
     card.button.set_class_name(format!("{} tapped playing", card.button.class_name()).as_str());
     match card.button.set_attribute("data-nxtcl", "<o_o<") {
@@ -97,6 +132,18 @@ pub fn open_card(cards: NodeList, card: CardElements, ms: u32) -> Result<HtmlEle
     Ok(card.button)
 }
 
+/// Changes the styles of the `Card Component` that is being closed
+/// 
+/// Waits for the close animation to play out before removing the classes
+/// 
+/// The animation takes `ms` time to play
+/// 
+/// * `cards` - A `NodeList` of `Card Component` to display the previously hidden ones
+/// * `card` - The `Card Component` to be closed
+/// * `container` - The `HtmlElement` containing the description
+/// * `ms` - The default animation duration in `u32`
+/// 
+/// Returns the `Card Component` button or a `JsValue` error 
 pub fn close_card(cards: NodeList, card: CardElements, container: HtmlElement, ms: u32) -> Result<HtmlElement, JsValue> {
     card.button.set_class_name(format!("{} playing", card.button.class_name()).as_str());
     container.set_class_name(container.class_name().replace(" tapped", "").as_str());
@@ -124,9 +171,20 @@ pub fn close_card(cards: NodeList, card: CardElements, container: HtmlElement, m
 
 #[derive(PartialEq)]
 struct DescriptionElements {
+    /// The `Card Component` descriptions button
     button: HtmlElement,
+    /// Container containing the `Card Component` description
     container: HtmlElement
 }
+/// Sends out a `__lazyload` custom event when loading the description appended to the DOM
+/// 
+/// The event is sent by the `lazyload` function in the `crate::tools::card_actions` file
+/// 
+/// * `button` - The `Card Component` button
+/// * `container` - The `HtmlElement` containing the `Card Component` description
+/// * `ms` - The default animation duration in `u32`
+/// 
+/// Handles the needed classes to add to the `container` too
 pub fn load_description(button: HtmlElement, container: HtmlElement, ms: u32) -> () {
     match lazyload() {
         Ok(ok) => {
@@ -144,6 +202,17 @@ pub fn load_description(button: HtmlElement, container: HtmlElement, ms: u32) ->
     }).forget();
 }
 
+/// Changes the `Card Component` visibility
+/// 
+/// * `cards` - A `NodeList` of `Card Component`
+/// * `card` - The `Card Component` to ignore in this script from the `NodeList`
+/// * `icon` - The `card` icon element
+/// * `ms` - The default animation duration in `u32`
+/// * `z_index` - The zIndex to set on the `cards` and the `icon`
+/// 
+/// Returns nothing, this function just does
+/// 
+/// TODO: Refactor usage of `unwrap()` in this function, those are only good on 1st iteration
 fn toggle_cards_visibility(cards: NodeList, card: HtmlElement, icon: HtmlElement, ms: u32, z_index: String) -> () {
     Timeout::new(ms, move || {
         for i in 0..cards.length() {
@@ -159,8 +228,10 @@ fn toggle_cards_visibility(cards: NodeList, card: HtmlElement, icon: HtmlElement
     }).forget();
 }
 
-// Send an event and trigger our lazyloading
-fn lazyload() -> Result<bool, JsValue> {
+/// Send an event and trigger our lazyloading
+/// 
+/// Returns a `bool` if the event was successfull or a `JsValue` error
+pub fn lazyload() -> Result<bool, JsValue> {
     let window = window();
     let lazyload_event: Result<Event, JsValue> = Event::new("__lazyload");
 
