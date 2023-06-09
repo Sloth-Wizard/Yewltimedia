@@ -6,13 +6,16 @@ mod models;
 mod tools;
 
 use models::cards::*;
+use models::imageloader::*;
 use web_sys::HtmlElement;
 use yew::prelude::*;
 use yew::{classes, html};
 use data::cards_data::create_cards;
 
+use crate::components::imageloader::ImageLoaderComponent;
 use crate::components::card::CardComponent;
 use crate::tools::card_actions_bindings::*;
+use crate::tools::constants::PRELOAD_DESC_IMAGE;
 
 #[function_component]
 fn App() -> Html {
@@ -68,21 +71,26 @@ fn App() -> Html {
         }
     };
 
+    let img_props = ImageProps { src: String::from(PRELOAD_DESC_IMAGE), rs_src: String::from("http://127.0.0.1:8080/yewltmedia/public/Ali.png"), alt: String::from("Ali") };
+
     html! {
-        <div class={classes!(String::from("container"))}>
-            <div class={classes!(String::from("card--zone"))}>
-                <div class={classes!(String::from("card--title card__text--mm"))}>
-                    <p>{header_text}</p>
+        <>
+            <ImageLoaderComponent ..img_props.clone() />
+            <div class={classes!(String::from("container"))}>
+                <div class={classes!(String::from("card--zone"))}>
+                    <div class={classes!(String::from("card--title card__text--mm"))}>
+                        <p>{header_text}</p>
+                    </div>
+                    <cards class={classes!(String::from("card--wrapper"))}>
+                        {cards}
+                    </cards>
+                    <div class="card--title card__text--mm">
+                        <p>{footer_text}</p>
+                    </div>
                 </div>
-                <cards class={classes!(String::from("card--wrapper"))}>
-                    {cards}
-                </cards>
-                <div class="card--title card__text--mm">
-                    <p>{footer_text}</p>
-                </div>
+                <div ref={description_container} {onclick} class="card--zone--desc _czd"></div>
             </div>
-            <div ref={description_container} {onclick} class="card--zone--desc _czd"></div>
-        </div>
+        </>
     }
 }
 
