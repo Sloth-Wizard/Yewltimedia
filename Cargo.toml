@@ -6,15 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-futures = "0.3.25"
-yew = { version = "0.20.0", features = ["csr"] }
-wasm-bindgen = "0.2.83"
-wasm-bindgen-futures = "0.4.33"
-gloo = "0.8"
-js-sys = "0.3.60"
+futures = "0.3.32"
+yew = { version = "0.23.0", features = ["csr"] }
+wasm-bindgen = "0.2.123"
+wasm-bindgen-futures = "0.4.73"
+gloo = "0.12.0"
+js-sys = "0.3.100"
 
 [dependencies.web-sys]
-version = "0.3.60"
+version = "0.3.100"
 features = [
   'CssStyleDeclaration',
   'Document',
